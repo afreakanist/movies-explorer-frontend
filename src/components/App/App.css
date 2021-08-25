@@ -1,0 +1,12 @@
+.page {
+  margin: 0 auto;
+  min-height: 100vh;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+.content {
+  flex-grow: 1;
+}
