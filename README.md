@@ -11,8 +11,10 @@
 Используемые технологии:
 
 - React (i.a. Hooks)
-- JavaScript ES6 (в т.ч. ООП)
+- JavaScript ES6
 - HTML 5
 - CSS 3 (i.a. Flexbox, Grid, media queries)
 
 `Адрес`: movieshmovie.nomoredomains.monster
+
+`Макет в Figma`: https://www.figma.com/file/tcOG82GcwvHFGczeFBRfQ1/Diploma-(Copy)?node-id=891%3A3857
