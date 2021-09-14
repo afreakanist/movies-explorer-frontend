@@ -1,6 +1,5 @@
 import "./AboutMe.css";
 import photo from "../../images/photo.jpg";
-import { Link } from "react-router-dom";
 import Portfolio from "../Portfolio/Portfolio";
 
 function AboutMe() {
@@ -34,14 +33,24 @@ function AboutMe() {
             </p>
             <ul className="student__link-list">
               <li>
-                <Link to="/" className="student__link">
+                <a
+                  href="https://www.facebook.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="student__link"
+                >
                   Facebook
-                </Link>
+                </a>
               </li>
               <li>
-                <Link to="/" className="student__link">
+                <a
+                  href="https://github.com/afreakanist"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="student__link"
+                >
                   Github
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
