@@ -8,6 +8,7 @@ import profileIcon from "../../images/profile-icon.svg";
 function Header({ isLoggedIn }) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const location = useLocation();
+  const isLanding = location.pathname === "/";
   const isAllMovies = location.pathname === "/movies";
   const isSavedMovies = location.pathname === "/saved-movies";
   /* const isRegisterPage = location.pathname === "/signup";
@@ -31,7 +32,7 @@ function Header({ isLoggedIn }) {
         {isLoggedIn ? (
           <>
             {isDesktop ? (
-              <nav>
+              <nav className="header__navigation">
                 <ul className="header__link-list">
                   <li>
                     <Link
@@ -53,17 +54,15 @@ function Header({ isLoggedIn }) {
                       Сохранённые фильмы
                     </Link>
                   </li>
-                  <li>
-                    <Link to="/profile" className="header__profile-link">
-                      <img
-                        src={profileIcon}
-                        alt="Иконка с человечком :)"
-                        className="header__profile-icon"
-                      />
-                      <p className="header__link">Аккаунт</p>
-                    </Link>
-                  </li>
                 </ul>
+                <Link to="/profile" className="header__profile-link">
+                  <img
+                    src={profileIcon}
+                    alt="Иконка с человечком :)"
+                    className="header__profile-icon"
+                  />
+                  <p className="header__link">Аккаунт</p>
+                </Link>
               </nav>
             ) : (
               <nav>
@@ -81,6 +80,16 @@ function Header({ isLoggedIn }) {
                       <ul className="header__dropdown-list">
                         <li>
                           <ul className="header__link-list header__link-list_dropdown">
+                            <li>
+                              <Link
+                                to="/"
+                                className={`header__link ${
+                                  isLanding ? "header__link_active" : ""
+                                }`}
+                              >
+                                Главная
+                              </Link>
+                            </li>
                             <li>
                               <Link
                                 to="/movies"
