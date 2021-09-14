@@ -1,0 +1,143 @@
+.search {
+  max-height: 217px;
+  margin: 70px 0 47px;
+}
+
+/* .search__form {
+} */
+
+.search__find-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e8e8e8;
+  width: 100%;
+}
+
+.search__label {
+  width: max-content;
+}
+
+.search__input {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 34px;
+  letter-spacing: 0px;
+  text-align: left;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+
+@media (max-width: 520px) {
+  .search__input {
+    font-size: 18px;
+    line-height: 22px;
+    max-width: 20ch;
+  }
+}
+
+.search__input::placeholder {
+  color: #a0a0a0;
+}
+
+.search__btn {
+  height: 34px;
+  width: 58.6px;
+  border: none;
+  border-radius: 48px;
+  background: #2be080;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 13px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .search__btn {
+    margin-bottom: 9px;
+  }
+}
+
+.search__filter-container {
+  padding-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .search__filter-container {
+    flex-direction: row-reverse;
+    padding-top: 29px;
+  }
+}
+
+@media (max-width: 520px) {
+  .search__filter-container {
+    justify-content: center;
+    padding-top: 40px;
+  }
+}
+
+.search__filter-switch {
+  position: relative;
+  display: inline-block;
+  height: 20px;
+  width: 36px;
+  border-radius: 20px;
+}
+
+.search__filter-input {
+  display: none;
+}
+
+.search__filter-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 20px;
+  background-color: #e8e8e8;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.search__filter-slider::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  left: 6px;
+  top: 6px;
+  border-radius: 50%;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.search__filter-input:checked + .search__filter-slider {
+  background-color: #2be080;
+}
+
+.search__filter-input:checked + .search__filter-slider::before {
+  -webkit-transform: translateX(16px);
+  -ms-transform: translateX(16px);
+  transform: translateX(16px);
+}
+
+.search__filter-caption {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0em;
+  text-align: left;
+}
