@@ -1,0 +1,77 @@
+.profile {
+  display: flex;
+  justify-content: center;
+}
+
+.profile__wrapper {
+  max-width: 410px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 70px;
+}
+
+.profile__title {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 29px;
+  letter-spacing: 0em;
+  text-align: center;
+  margin: 74px 0 123px;
+}
+
+.profile__form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.profile__form-label {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 13px;
+  letter-spacing: 0px;
+  text-align: left;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  min-height: 32px;
+  width: 410px;
+  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 17px;
+}
+
+.profile__form-input {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 13px;
+  letter-spacing: 0px;
+  text-align: right;
+  outline: none;
+  border: none;
+  width: 100%;
+  padding: 0 0 16px;
+}
+
+.profile__form-btn {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  margin-bottom: 16px;
+  cursor: pointer;
+}
+
+@media (max-width: 520px) {
+  .profile__form-btn {
+    font-size: 12px;
+    line-height: 15px;
+  }
+}
+
+.profile__form-btn_color_red {
+  font-weight: 500;
+  color: #ee3465;
+}
