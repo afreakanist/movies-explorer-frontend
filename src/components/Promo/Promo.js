@@ -1,7 +1,8 @@
 import "./Promo.css";
 import landingImg from "../../images/landing-logo.svg";
+import NavBar from "../NavBar/NavBar";
 
-function Promo() {
+function Promo({ anchorRef }) {
   return (
     <section className="promo">
       <div className="promo__wrapper">
@@ -21,7 +22,7 @@ function Promo() {
             className="promo__img"
           ></img>
         </div>
-        <button className="promo__btn">Узнать больше</button>
+        <NavBar anchorRef={anchorRef} />
       </div>
     </section>
   );

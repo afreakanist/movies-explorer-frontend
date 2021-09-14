@@ -110,18 +110,3 @@
     width: 210px;
   }
 }
-
-.promo__btn {
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  letter-spacing: 0px;
-  text-align: center;
-  height: 36px;
-  width: 129px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 3px;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-}

@@ -1,8 +1,9 @@
+import { forwardRef } from "react";
 import "./AboutProject.css";
 
-function AbouProject() {
+const AbouProject = forwardRef(({ anchorRef }) => {
   return (
-    <section className="project">
+    <section className="project" ref={anchorRef}>
       <div className="project__wrapper">
         <h2 className="project__title">О проекте</h2>
         <div className="project__gist">
@@ -42,6 +43,6 @@ function AbouProject() {
       </div>
     </section>
   );
-}
+});
 
 export default AbouProject;
