@@ -11,6 +11,7 @@ function SearchForm() {
               name="movie"
               className="search__input"
               placeholder="Фильм"
+              required
             />
           </label>
           <button className="search__btn">Найти</button>

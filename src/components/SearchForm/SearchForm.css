@@ -41,6 +41,10 @@
   color: #a0a0a0;
 }
 
+.search__find-group:focus-within {
+  border-color: #2be080;
+}
+
 .search__btn {
   height: 34px;
   width: 58.6px;

@@ -15,6 +15,8 @@ function Profile() {
                 minLength="2"
                 className="profile__form-input"
                 defaultValue="Пользователь"
+                placeholder="Введите имя"
+                required
               ></input>
             </label>
             <label htmlFor="email" className="profile__form-label">
@@ -25,6 +27,8 @@ function Profile() {
                 type="email"
                 className="profile__form-input"
                 defaultValue="example@example.ru"
+                placeholder="Введите email"
+                required
               ></input>
             </label>
           </div>

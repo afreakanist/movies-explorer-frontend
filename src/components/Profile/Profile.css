@@ -52,6 +52,10 @@
   padding: 0 0 16px;
 }
 
+.profile__form-label:focus-within {
+  border-color: #2be080;
+}
+
 .profile__form-btn {
   font-size: 13px;
   font-weight: 400;
