@@ -1,0 +1,17 @@
+.movies__wrapper {
+  margin: 0 auto;
+  padding: 0 70px;
+  max-width: 1280px;
+}
+
+@media (max-width: 768px) {
+  .movies__wrapper {
+    padding: 0 30px;
+  }
+}
+
+@media (max-width: 520px) {
+  .movies__wrapper {
+    padding: 0 14px;
+  }
+}
