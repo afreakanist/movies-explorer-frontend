@@ -11,45 +11,49 @@ import ProfilePage from "../ProfilePage/ProfilePage";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import Register from "../Register/Register";
 import SavedMoviesPage from "../SavedMoviesPage/SavedMoviesPage";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 
 function App() {
+  const [currentUser, setCurrentUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   return (
-    <Switch>
-      <Route exact path="/">
-        <Header isLoggedIn={isLoggedIn} />
-        <Main />
-        <Footer />
-      </Route>
-      <Route exact path="/signup">
-        <Register />
-      </Route>
-      <Route exact path="/signin">
-        <Login />
-      </Route>
-      <ProtectedRoute
-        exact
-        path="/profile"
-        component={ProfilePage}
-        isLoggedIn={isLoggedIn}
-      />
-      <ProtectedRoute
-        exact
-        path="/movies"
-        component={MoviesPage}
-        isLoggedIn={isLoggedIn}
-      />
-      <ProtectedRoute
-        exact
-        path="/saved-movies"
-        component={SavedMoviesPage}
-        isLoggedIn={isLoggedIn}
-      />
-      <Route path="*">
-        <NotFound />
-      </Route>
-    </Switch>
+    <CurrentUserContext.Provider value={currentUser}>
+      <Switch>
+        <Route exact path="/">
+          <Header isLoggedIn={isLoggedIn} />
+          <Main />
+          <Footer />
+        </Route>
+        <Route exact path="/signup">
+          <Register />
+        </Route>
+        <Route exact path="/signin">
+          <Login />
+        </Route>
+        <ProtectedRoute
+          exact
+          path="/profile"
+          component={ProfilePage}
+          isLoggedIn={isLoggedIn}
+        />
+        <ProtectedRoute
+          exact
+          path="/movies"
+          component={MoviesPage}
+          isLoggedIn={isLoggedIn}
+        />
+        <ProtectedRoute
+          exact
+          path="/saved-movies"
+          component={SavedMoviesPage}
+          isLoggedIn={isLoggedIn}
+        />
+        <Route path="*">
+          <NotFound />
+        </Route>
+      </Switch>
+    </CurrentUserContext.Provider>
   );
 }
 
