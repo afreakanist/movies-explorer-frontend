@@ -1,49 +1,55 @@
+import { useState } from "react";
 import { Switch, Route } from "react-router-dom";
 import "./App.css";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import Login from "../Login/Login";
 import Main from "../Main/Main";
-import Movies from "../Movies/Movies";
+import MoviesPage from "../MoviesPage/MoviesPage";
 import NotFound from "../NotFound/NotFound";
-import Profile from "../Profile/Profile";
+import ProfilePage from "../ProfilePage/ProfilePage";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import Register from "../Register/Register";
-import SavedMovies from "../SavedMovies/SavedMovies";
+import SavedMoviesPage from "../SavedMoviesPage/SavedMoviesPage";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
   return (
-    <>
-      <Switch>
-        <Route exact path="/">
-          <Header isLoggedIn={false} />
-          <Main />
-          <Footer />
-        </Route>
-        <Route exact path="/signup">
-          <Register />
-        </Route>
-        <Route exact path="/signin">
-          <Login />
-        </Route>
-        <Route exact path="/profile">
-          <Header isLoggedIn={true} />
-          <Profile />
-        </Route>
-        <Route exact path="/movies">
-          <Header isLoggedIn={true} />
-          <Movies />
-          <Footer />
-        </Route>
-        <Route exact path="/saved-movies">
-          <Header isLoggedIn={true} />
-          <SavedMovies />
-          <Footer />
-        </Route>
-        <Route path="*">
-          <NotFound />
-        </Route>
-      </Switch>
-    </>
+    <Switch>
+      <Route exact path="/">
+        <Header isLoggedIn={isLoggedIn} />
+        <Main />
+        <Footer />
+      </Route>
+      <Route exact path="/signup">
+        <Register />
+      </Route>
+      <Route exact path="/signin">
+        <Login />
+      </Route>
+      <ProtectedRoute
+        exact
+        path="/profile"
+        component={ProfilePage}
+        isLoggedIn={isLoggedIn}
+      />
+      <ProtectedRoute
+        exact
+        path="/movies"
+        component={MoviesPage}
+        isLoggedIn={isLoggedIn}
+      />
+      <ProtectedRoute
+        exact
+        path="/saved-movies"
+        component={SavedMoviesPage}
+        isLoggedIn={isLoggedIn}
+      />
+      <Route path="*">
+        <NotFound />
+      </Route>
+    </Switch>
   );
 }
 
