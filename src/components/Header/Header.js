@@ -20,7 +20,7 @@ function Header({ isLoggedIn }) {
   };
 
   return (
-    <header className={`header ${!isLoggedIn ? "header_dark" : ""}`}>
+    <header className={`header ${isLanding ? "header_dark" : ""}`}>
       <div className="header__wrapper">
         <Link to="/">
           <img
