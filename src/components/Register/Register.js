@@ -1,6 +1,17 @@
+import { useState } from "react";
 import UserForm from "../UserForm/UserForm";
 
-function Register() {
+function Register({ onRegister }) {
+  const [userData, setUserData] = useState({});
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onRegister(userData);
+  };
+
   return (
     <UserForm
       title="Добро пожаловать!"
@@ -8,6 +19,7 @@ function Register() {
       optionText="Уже зарегистрированы?"
       optionLink="/signin"
       optionLinkText="Войти"
+      onSubmit={handleSubmit}
     >
       <label htmlFor="name" className="user-form__form-label">
         Имя
@@ -18,6 +30,7 @@ function Register() {
           maxLength="30"
           className="user-form__form-input"
           required
+          onChange={handleChange}
         ></input>
         <span className="user-form__form-error"></span>
       </label>
@@ -29,6 +42,7 @@ function Register() {
           type="email"
           className="user-form__form-input"
           required
+          onChange={handleChange}
         ></input>
         <span className="user-form__form-error"></span>
       </label>
@@ -41,6 +55,7 @@ function Register() {
           minLength="8"
           className="user-form__form-input"
           required
+          onChange={handleChange}
         ></input>
         <span className="user-form__form-error"></span>
       </label>

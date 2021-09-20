@@ -1,9 +1,21 @@
+import { useState } from "react";
 import "./SearchForm.css";
 
-function SearchForm() {
+function SearchForm({ onMovieSearchSubmit }) {
+  const [movieValue, setMovieValue] = useState("");
+
+  const handleMovieValueChange = (e) => {
+    setMovieValue(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onMovieSearchSubmit(movieValue);
+  };
+
   return (
     <div className="search">
-      <form className="search__form">
+      <form className="search__form" onSubmit={handleSubmit}>
         <div className="search__find-group">
           <label htmlFor="movie" className="search__label">
             <input
@@ -11,6 +23,8 @@ function SearchForm() {
               name="movie"
               className="search__input"
               placeholder="Фильм"
+              value={movieValue || ""}
+              onChange={handleMovieValueChange}
               required
             />
           </label>
