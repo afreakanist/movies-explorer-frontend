@@ -2,11 +2,11 @@ import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
 import Movies from "../Movies/Movies";
 
-function MoviesPage(props) {
+function MoviesPage({ isLoggedIn, ...props }) {
   return (
     <>
-      <Header isLoggedIn={props.isLoggedIn} />
-      <Movies />
+      <Header isLoggedIn={isLoggedIn} />
+      <Movies {...props} />
       <Footer />
     </>
   );

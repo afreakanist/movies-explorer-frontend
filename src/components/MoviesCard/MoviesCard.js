@@ -1,39 +1,53 @@
 import "./MoviesCard.css";
 
-function MoviesCard({
-  country,
-  director,
-  duration,
-  year,
-  description,
-  image,
-  trailer,
-  nameRU,
-  nameEN,
-  thumbnail,
-  movieId,
-  owner,
-  location,
-  isModified,
-}) {
+function MoviesCard({ movie, onSaving, isSaved, location }) {
   const modifier =
     location === "/movies" ? "card__btn_saved" : "card__btn_delete";
+
+  const renderDuration = (dur) => {
+    const hours = Math.floor(dur / 60);
+    const minutes = dur % 60;
+    return hours > 0 ? `${hours}ч ${minutes}м` : `${minutes}м`;
+  };
+
+  const handleSaving = () => {
+    onSaving(movie, isSaved, location);
+  };
+
+  const trailerURL = location === "/movies" ? movie.trailerLink : movie.trailer;
 
   return (
     <div className="card">
       <div className="card__poster">
-        <img src={image} alt={nameRU || nameEN} className="card__image" />
-        <button
-          className={`card__btn ${isModified ? modifier : ""} ${
-            location === "/saved-movies" ? "card__btn_delete" : ""
+        <a
+          href={`${
+            trailerURL.startsWith("http")
+              ? trailerURL
+              : "https://www.youtube.com"
           }`}
+          target="_blank"
+          rel="noreferrer"
         >
-          {location === "/movies" && !isModified ? "Сохранить" : ""}
+          <img
+            src={
+              location === "/movies"
+                ? `https://api.nomoreparties.co${movie.image.url}`
+                : movie.image
+            }
+            alt={movie.nameRU || movie.nameEN}
+            className="card__image"
+          />
+        </a>
+        <button
+          className={`card__btn ${isSaved ? modifier : ""}`}
+          onClick={handleSaving}
+        >
+          {location === "/movies" && !isSaved ? "Сохранить" : ""}
         </button>
       </div>
       <div className="card__info">
-        <p className="card__title">{nameRU || nameEN}</p>
-        <p className="card__duration">{duration}</p>
+        <p className="card__title">{movie.nameRU || movie.nameEN}</p>
+        <p className="card__duration">{renderDuration(movie.duration)}</p>
       </div>
     </div>
   );

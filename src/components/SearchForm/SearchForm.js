@@ -1,16 +1,30 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import "./SearchForm.css";
 
-function SearchForm({ onMovieSearchSubmit }) {
+function SearchForm({
+  movies,
+  savedMovies,
+  onSearchMovie,
+  setAreShortFilmsIncluded,
+  setIsPending,
+}) {
   const [movieValue, setMovieValue] = useState("");
+  const location = useLocation().pathname;
 
   const handleMovieValueChange = (e) => {
     setMovieValue(e.target.value);
   };
 
+  const handleFilter = (e) => {
+    setAreShortFilmsIncluded(e.target.checked);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onMovieSearchSubmit(movieValue);
+    setIsPending(true);
+    const movieList = location === "/movies" ? movies : savedMovies;
+    onSearchMovie(movieValue, movieList, location);
   };
 
   return (
@@ -23,7 +37,7 @@ function SearchForm({ onMovieSearchSubmit }) {
               name="movie"
               className="search__input"
               placeholder="Фильм"
-              value={movieValue || ""}
+              value={movieValue}
               onChange={handleMovieValueChange}
               required
             />
@@ -38,6 +52,7 @@ function SearchForm({ onMovieSearchSubmit }) {
               name="short"
               className="search__filter-input"
               defaultChecked
+              onChange={handleFilter}
             />
             <span className="search__filter-slider"></span>
           </label>

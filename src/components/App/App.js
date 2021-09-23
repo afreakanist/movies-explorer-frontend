@@ -13,12 +13,16 @@ import Register from "../Register/Register";
 import SavedMoviesPage from "../SavedMoviesPage/SavedMoviesPage";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import * as auth from "../../utils/auth";
-import MainApi from "../../utils/MainApi";
+import mainApi from "../../utils/MainApi";
+import moviesApi from "../../utils/MoviesApi";
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
+  const [areShortFilmsIncluded, setAreShortFilmsIncluded] = useState(true);
   const history = useHistory();
 
   useEffect(() => {
@@ -28,7 +32,7 @@ function App() {
   useEffect(() => {
     if (isLoggedIn) {
       const token = localStorage.getItem("jwt");
-      Promise.all([MainApi.getUserInfo(token), MainApi.getMovieCards(token)])
+      Promise.all([mainApi.getUserInfo(token), mainApi.getMovieCards(token)])
         .then(([userData, moviesData]) => {
           setCurrentUser(userData);
           setSavedMovies([...moviesData]);
@@ -77,15 +81,23 @@ function App() {
   const handleTokenCheck = () => {
     if (localStorage.getItem("jwt")) {
       const jwt = localStorage.getItem("jwt");
+      const movieList = localStorage.getItem("movieList");
+      const savedMovieList = localStorage.getItem("savedMovieList");
       auth
         .checkToken(jwt)
         .then((res) => {
           if (res) {
             setIsLoggedIn(true);
-            history.push("/movies");
+            history.push("/");
           }
         })
         .catch((err) => console.log(err));
+      if (movieList) {
+        setMovies(JSON.parse(movieList));
+      }
+      if (savedMovieList) {
+        setSavedMovies(JSON.parse(savedMovieList));
+      }
     }
   };
 
@@ -93,15 +105,86 @@ function App() {
     setIsLoggedIn(false);
     localStorage.removeItem("jwt");
     localStorage.removeItem("email");
+    localStorage.removeItem("movieList");
   };
 
   const handleProfileUpdate = (userData) => {
     const token = localStorage.getItem("jwt");
-    MainApi.editUserInfo(userData, token)
+    mainApi
+      .editUserInfo(userData, token)
       .then((newUserData) => {
         setCurrentUser((prev) => ({ ...prev, ...newUserData }));
       })
       .catch((err) => console.log(`Error in profile editing: ${err}`));
+  };
+
+  const handleMovieSearch = (movieValue, movieList, location) => {
+    if (movieList.length > 0) {
+      const results = movieList.filter((movie) =>
+        movie.nameRU.toLowerCase().includes(movieValue.trim().toLowerCase())
+      );
+      location === "/movies" ? setMovies(results) : setSavedMovies(results);
+      setIsPending(false);
+    } else {
+      moviesApi
+        .getMovies()
+        .then((moviesData) => {
+          setMovies([...moviesData]);
+          localStorage.setItem("movieList", JSON.stringify(moviesData));
+        })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setIsPending(false);
+        });
+    }
+  };
+
+  const handleMovieSaving = (movie, isSaved, location) => {
+    const token = localStorage.getItem("jwt");
+    const findMovieToDelete = () => {
+      if (isSaved) {
+        if (location === "/movies") {
+          return savedMovies.find((m) => m.movieId === String(movie.id));
+        } else {
+          return savedMovies.find((m) => m.movieId === movie.movieId);
+        }
+      }
+      return null;
+    };
+    const movieToDelete = findMovieToDelete();
+
+    isSaved
+      ? mainApi
+          .deleteMovieCard(movieToDelete._id, token)
+          .then(() => {
+            setSavedMovies((prev) =>
+              prev.filter((m) => m._id !== movieToDelete._id)
+            );
+          })
+          .catch((err) => console.log(err))
+      : mainApi
+          .postMovieCard(
+            {
+              country: movie.country,
+              description: movie.description,
+              director: movie.director,
+              duration: movie.duration,
+              nameEN: movie.nameEN,
+              nameRU: movie.nameRU,
+              year: movie.year,
+              image: `https://api.nomoreparties.co${movie.image.url}`,
+              trailer: movie.trailerLink.startsWith("http")
+                ? movie.trailerLink
+                : "https://www.youtube.com",
+              thumbnail: `https://api.nomoreparties.co${movie.image.formats.thumbnail.url}`,
+              movieId: String(movie.id),
+            },
+            token
+          )
+          .then((savedMovie) => {
+            setSavedMovies((prev) => [...prev, savedMovie]);
+          })
+          .catch((err) => console.log(err));
   };
 
   return (
@@ -132,13 +215,28 @@ function App() {
           path="/movies"
           component={MoviesPage}
           isLoggedIn={isLoggedIn}
+          movies={movies}
+          savedMovies={savedMovies}
+          onSearchMovie={handleMovieSearch}
+          onSaving={handleMovieSaving}
+          areShortFilmsIncluded={areShortFilmsIncluded}
+          setAreShortFilmsIncluded={setAreShortFilmsIncluded}
+          isPending={isPending}
+          setIsPending={setIsPending}
         />
         <ProtectedRoute
           exact
           path="/saved-movies"
           component={SavedMoviesPage}
           isLoggedIn={isLoggedIn}
+          movies={movies}
           savedMovies={savedMovies}
+          onSearchMovie={handleMovieSearch}
+          onSaving={handleMovieSaving}
+          areShortFilmsIncluded={areShortFilmsIncluded}
+          setAreShortFilmsIncluded={setAreShortFilmsIncluded}
+          isPending={isPending}
+          setIsPending={setIsPending}
         />
         <Route path="*">
           <NotFound />
