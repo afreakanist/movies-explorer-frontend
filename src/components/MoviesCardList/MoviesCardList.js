@@ -8,6 +8,7 @@ function MoviesCardList({
   savedMovies,
   areShortFilmsIncluded,
   onSaving,
+  didSearchFail,
 }) {
   const location = useLocation().pathname;
   const movieList = areShortFilmsIncluded
@@ -118,6 +119,12 @@ function MoviesCardList({
           }, [])}
         {(movieList.length === 0 || savedMovieList.length === 0) && (
           <p className="movies-list__message">Ничего не найдено</p>
+        )}
+        {didSearchFail && (
+          <p className="movies-list__message">
+            Во время запроса произошла ошибка. Возможно, проблема с соединением
+            или сервер недоступен. Подождите немного и попробуйте ещё раз
+          </p>
         )}
       </div>
       {location === "/movies" &&

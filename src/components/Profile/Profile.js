@@ -1,17 +1,13 @@
-import { useState, useEffect } from "react";
+import useFormValidation from "../../utils/hooks/useFormValidation";
 import "./Profile.css";
 
-function Profile({ onProfileUpdate, onLogout, user }) {
-  const [userData, setUserData] = useState({});
-
-  useEffect(() => {
-    setUserData((prev) => ({ ...prev, ...user }));
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
-  };
+function Profile({ onProfileUpdate, requestStatusMessage, onLogout, user }) {
+  const { values: userData, errors, handleChange, isValid } = useFormValidation(
+    {
+      name: user.name,
+      email: user.email,
+    }
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,11 +27,15 @@ function Profile({ onProfileUpdate, onLogout, user }) {
                 name="name"
                 minLength="2"
                 className="profile__form-input"
-                defaultValue={user.name}
+                value={userData.name}
                 placeholder="Введите имя"
+                autoComplete="false"
                 required
                 onChange={handleChange}
               ></input>
+              {errors.name && (
+                <span className="profile__form-error">{errors.name}</span>
+              )}
             </label>
             <label htmlFor="email" className="profile__form-label">
               E-mail
@@ -44,14 +44,27 @@ function Profile({ onProfileUpdate, onLogout, user }) {
                 name="email"
                 type="email"
                 className="profile__form-input"
-                defaultValue={user.email}
+                value={userData.email}
                 placeholder="Введите email"
+                autoComplete="false"
                 required
                 onChange={handleChange}
               ></input>
+              {errors.email && (
+                <span className="profile__form-error">{errors.email}</span>
+              )}
             </label>
+            {requestStatusMessage.isVisible && (
+              <span className="profile__message">
+                {requestStatusMessage.isSuccessful
+                  ? "Ваши данные сохранены"
+                  : "Что-то пошло не так :("}
+              </span>
+            )}
           </div>
-          <button className="profile__form-btn">Редактировать</button>
+          <button className="profile__form-btn" disabled={!isValid}>
+            Редактировать
+          </button>
         </form>
         <button
           className="profile__form-btn profile__form-btn_color_red"

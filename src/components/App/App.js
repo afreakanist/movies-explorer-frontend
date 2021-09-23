@@ -19,10 +19,16 @@ import moviesApi from "../../utils/MoviesApi";
 function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isPending, setIsPending] = useState(false);
   const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
   const [areShortFilmsIncluded, setAreShortFilmsIncluded] = useState(true);
+  const [isPending, setIsPending] = useState(false);
+  const [didSearchFail, setDidSearchFail] = useState(false);
+  const [requestStatusMessage, setRequestStatusMessage] = useState({
+    isVisible: false,
+    isSuccessful: false,
+    message: "",
+  });
   const history = useHistory();
 
   useEffect(() => {
@@ -46,16 +52,16 @@ function App() {
       .register(password, email, name)
       .then(({ _id, email, name }) => {
         if (_id && email) {
-          /* setInfoTooltip({
-            isOpen: true,
+          setRequestStatusMessage({
+            isVisible: true,
             isSuccessful: true,
-          }); */
+          });
           history.push("/signin");
         } else {
-          /* setInfoTooltip({
-            isOpen: true,
+          setRequestStatusMessage({
+            isVisible: true,
             isSuccessful: false,
-          }); */
+          });
         }
         return { _id, email, name };
       })
@@ -71,18 +77,27 @@ function App() {
           localStorage.setItem("email", email);
           setIsLoggedIn(true);
           setCurrentUser((prev) => ({ ...prev, email }));
+          setRequestStatusMessage({
+            isVisible: true,
+            isSuccessful: true,
+          });
           history.push("/movies");
         }
         return data;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        setRequestStatusMessage({
+          isVisible: true,
+          isSuccessful: false,
+        });
+        console.log(err);
+      });
   };
 
   const handleTokenCheck = () => {
     if (localStorage.getItem("jwt")) {
       const jwt = localStorage.getItem("jwt");
       const movieList = localStorage.getItem("movieList");
-      const savedMovieList = localStorage.getItem("savedMovieList");
       auth
         .checkToken(jwt)
         .then((res) => {
@@ -94,9 +109,6 @@ function App() {
         .catch((err) => console.log(err));
       if (movieList) {
         setMovies(JSON.parse(movieList));
-      }
-      if (savedMovieList) {
-        setSavedMovies(JSON.parse(savedMovieList));
       }
     }
   };
@@ -114,11 +126,22 @@ function App() {
       .editUserInfo(userData, token)
       .then((newUserData) => {
         setCurrentUser((prev) => ({ ...prev, ...newUserData }));
+        setRequestStatusMessage({
+          isVisible: true,
+          isSuccessful: true,
+        });
       })
-      .catch((err) => console.log(`Error in profile editing: ${err}`));
+      .catch((err) => {
+        setRequestStatusMessage({
+          isVisible: true,
+          isSuccessful: true,
+        });
+        console.log(`Error in profile editing: ${err}`);
+      });
   };
 
   const handleMovieSearch = (movieValue, movieList, location) => {
+    setDidSearchFail(false);
     if (movieList.length > 0) {
       const results = movieList.filter((movie) =>
         movie.nameRU.toLowerCase().includes(movieValue.trim().toLowerCase())
@@ -132,7 +155,10 @@ function App() {
           setMovies([...moviesData]);
           localStorage.setItem("movieList", JSON.stringify(moviesData));
         })
-        .catch((err) => console.log(err))
+        .catch((err) => {
+          console.log(err);
+          setDidSearchFail(true);
+        })
         .finally(() => {
           setIsPending(false);
         });
@@ -196,10 +222,16 @@ function App() {
           <Footer />
         </Route>
         <Route exact path="/signup">
-          <Register onRegister={handleRegister} />
+          <Register
+            onRegister={handleRegister}
+            requestStatusMessage={requestStatusMessage}
+          />
         </Route>
         <Route exact path="/signin">
-          <Login onLogin={handleLogin} />
+          <Login
+            onLogin={handleLogin}
+            requestStatusMessage={requestStatusMessage}
+          />
         </Route>
         <ProtectedRoute
           exact
@@ -208,6 +240,7 @@ function App() {
           isLoggedIn={isLoggedIn}
           onProfileUpdate={handleProfileUpdate}
           onLogout={handleLogout}
+          requestStatusMessage={requestStatusMessage}
           user={currentUser}
         />
         <ProtectedRoute
@@ -223,6 +256,7 @@ function App() {
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           isPending={isPending}
           setIsPending={setIsPending}
+          didSearchFail={didSearchFail}
         />
         <ProtectedRoute
           exact
@@ -237,6 +271,7 @@ function App() {
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           isPending={isPending}
           setIsPending={setIsPending}
+          didSearchFail={didSearchFail}
         />
         <Route path="*">
           <NotFound />

@@ -12,6 +12,7 @@ function Movies({
   isPending,
   setIsPending,
   onSaving,
+  didSearchFail,
 }) {
   return (
     <main className="content movies">
@@ -29,6 +30,7 @@ function Movies({
           savedMovies={savedMovies}
           areShortFilmsIncluded={areShortFilmsIncluded}
           onSaving={onSaving}
+          didSearchFail={didSearchFail}
         />
       </div>
     </main>
