@@ -24,7 +24,7 @@ function Register({
     setRequestStatusMessage({
       isVisible: false,
     });
-  }, []);
+  }, [userData]);
 
   return (
     <UserForm

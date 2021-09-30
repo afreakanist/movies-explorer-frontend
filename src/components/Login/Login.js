@@ -19,7 +19,7 @@ function Login({ onLogin, requestStatusMessage, setRequestStatusMessage }) {
     setRequestStatusMessage({
       isVisible: false,
     });
-  }, []);
+  }, [userData]);
 
   return (
     <UserForm

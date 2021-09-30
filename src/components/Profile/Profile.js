@@ -44,7 +44,7 @@ function Profile({
                 minLength="2"
                 className="profile__form-input"
                 value={userData.name}
-                placeholder="Введите имя"
+                placeholder={user.name}
                 autoComplete="false"
                 required
                 onChange={handleChange}
@@ -61,7 +61,7 @@ function Profile({
                 type="email"
                 className="profile__form-input"
                 value={userData.email}
-                placeholder="Введите email"
+                placeholder={user.email}
                 autoComplete="false"
                 required
                 onChange={handleChange}
