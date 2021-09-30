@@ -31,6 +31,9 @@ function App() {
   const [savedMovieSeacrhKeyword, setSavedMovieSearchKeyword] = useState("");
   const [areAnyResults, setAreAnyResults] = useState(true);
   const [areShortFilmsIncluded, setAreShortFilmsIncluded] = useState(true);
+  const [areShortSavedFilmsIncluded, setAreShortSavedFilmsIncluded] = useState(
+    true
+  );
   const [isPending, setIsPending] = useState(false);
   const [didSearchFail, setDidSearchFail] = useState(false);
   const [requestStatusMessage, setRequestStatusMessage] = useState({
@@ -172,7 +175,6 @@ function App() {
       results = list.filter((movie) =>
         movie.nameRU.toLowerCase().includes(value.trim().toLowerCase())
       );
-      console.log("filter by word", results);
     }
     setAreAnyResults(results.length !== 0);
     return results;
@@ -230,7 +232,7 @@ function App() {
     if (!movieList) {
       setAreAnyResults(false);
     } else {
-      results = search(movieList, movieValue, areShortFilmsIncluded);
+      results = search(movieList, movieValue, areShortSavedFilmsIncluded);
       setAreAnyResults(results.length !== 0);
     }
 
@@ -290,6 +292,7 @@ function App() {
           )
           .then((savedMovie) => {
             setSavedMovies((prev) => [...prev, savedMovie]);
+            setMovies(movies);
             localStorage.setItem(
               "savedMovieList",
               JSON.stringify([
@@ -317,7 +320,7 @@ function App() {
               setRequestStatusMessage={setRequestStatusMessage}
             />
           ) : (
-            <Redirect to="/movies" />
+            <Redirect to="/" />
           )}
         </Route>
         <Route exact path="/signin">
@@ -328,7 +331,7 @@ function App() {
               setRequestStatusMessage={setRequestStatusMessage}
             />
           ) : (
-            <Redirect to="/movies" />
+            <Redirect to="/" />
           )}
         </Route>
         <ProtectedRoute
@@ -348,6 +351,7 @@ function App() {
           component={MoviesPage}
           isLoggedIn={isLoggedIn}
           movies={movies}
+          setMovies={setMovies}
           savedMovies={savedMovies}
           onSearchMovie={handleMovieSearch}
           onSaving={handleMovieSaving}
@@ -370,8 +374,8 @@ function App() {
           onSearchMovie={handleSavedMovieSearch}
           onSaving={handleMovieSaving}
           onFilter={handleFilter}
-          areShortFilmsIncluded={areShortFilmsIncluded}
-          setAreShortFilmsIncluded={setAreShortFilmsIncluded}
+          areShortFilmsIncluded={areShortSavedFilmsIncluded}
+          setAreShortFilmsIncluded={setAreShortSavedFilmsIncluded}
           isPending={isPending}
           setIsPending={setIsPending}
           didSearchFail={didSearchFail}

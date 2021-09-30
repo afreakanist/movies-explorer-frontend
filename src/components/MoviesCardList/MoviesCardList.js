@@ -6,7 +6,6 @@ import "./MoviesCardList.css";
 function MoviesCardList({
   movies,
   savedMovies,
-  areShortFilmsIncluded,
   onSaving,
   didSearchFail,
   areAnyResults,
@@ -14,120 +13,86 @@ function MoviesCardList({
 }) {
   const location = useLocation().pathname;
 
-  const moviesToRender = areShortFilmsIncluded
-    ? movies
-    : movies.filter((movie) => movie.duration > 40);
-
-  const savedMoviesToRender = areShortFilmsIncluded
-    ? savedMovies
-    : savedMovies.filter((movie) => movie.duration > 40);
-
-  const [currentMoviesChunk, setCurrentMovieChunk] = useState([]);
-  const [windowSize, setWindowSize] = useState(window.innerWidth);
+  const [chunkSize, setChunkSize] = useState(0);
+  const windowWidth = document.documentElement.clientWidth;
 
   useEffect(() => {
-    if (location === "/movies") {
-      const nextMoviesChunk = moviesToRender.slice(
-        0,
-        defineChunkSize().perPage
-      );
-      setCurrentMovieChunk(nextMoviesChunk);
-    } else {
-      const nextMoviesChunk = savedMoviesToRender.slice(
-        0,
-        defineChunkSize().perPage
-      );
-      setCurrentMovieChunk(nextMoviesChunk);
-    }
-  }, [windowSize, movies, savedMovies, areShortFilmsIncluded]);
-
-  function debounce(fn, ms) {
-    let timer;
-    return (_) => {
-      clearTimeout(timer);
-      timer = setTimeout((_) => {
-        timer = null;
-        fn.apply(this, arguments);
-      }, ms);
-    };
-  }
-
-  useEffect(() => {
-    const handleResize = debounce(function handleResize() {
-      setWindowSize(window.innerWidth);
-    }, 1000);
+    renderCardList();
     window.addEventListener("resize", handleResize);
-    return (_) => {
+    return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  function defineChunkSize() {
+  const renderCardList = () => {
     switch (true) {
-      case windowSize >= 1280:
-        return { perPage: 12, add: 3 };
-      case windowSize >= 768 && windowSize < 1280:
-        return { perPage: 8, add: 2 };
-      case windowSize >= 320 && windowSize < 768:
-        return { perPage: 5, add: 2 };
+      case windowWidth >= 1280:
+        setChunkSize(12);
+        break;
+      case windowWidth >= 768 && windowWidth < 1280:
+        setChunkSize(8);
+        break;
+      case windowWidth >= 320 && windowWidth < 768:
+        setChunkSize(5);
+        break;
       default:
-        return { perPage: 12, add: 3 };
+        setChunkSize(12);
+        break;
     }
-  }
+  };
+
+  const handleResize = (evt) => {
+    if (evt.target.innerWidth === 600) {
+      setChunkSize(5);
+    } else if (evt.target.innerWidth === 601) {
+      setChunkSize(7);
+    }
+  };
 
   const handleMoreBtnClick = () => {
-    setCurrentMovieChunk(
-      movies.slice(0, (currentMoviesChunk.length += defineChunkSize().add))
-    );
+    if (chunkSize % 3 === 0) {
+      setChunkSize(chunkSize + 3);
+    } else {
+      setChunkSize(chunkSize + 2);
+    }
   };
 
   return (
     <div className="movies-list">
       <div className="movies-list__grid">
         {location === "/movies" &&
-          moviesToRender.length > 0 &&
-          moviesToRender.reduce((chunk, movie) => {
-            if (chunk.length < currentMoviesChunk.length) {
-              const isSaved = savedMovies.some(
-                (m) => m.movieId === String(movie.id)
-              );
-              chunk.push(
-                <MoviesCard
-                  key={movie.id}
-                  movie={movie}
-                  isSaved={isSaved}
-                  location={location}
-                  onSaving={onSaving}
-                />
-              );
-            }
-            return chunk;
-          }, [])}
+          movies.length > 0 &&
+          movies.slice(0, chunkSize).map((movie) => {
+            return (
+              <MoviesCard
+                key={movie.id}
+                movie={movie}
+                location={location}
+                onSaving={onSaving}
+              />
+            );
+          })}
         {location === "/saved-movies" &&
-          savedMoviesToRender.length > 0 &&
-          savedMoviesToRender.reduce((chunk, movie) => {
-            if (chunk.length < currentMoviesChunk.length) {
-              chunk.push(
-                <MoviesCard
-                  key={movie.movieId}
-                  movie={movie}
-                  isSaved={true}
-                  location={location}
-                  onSaving={onSaving}
-                />
-              );
-            }
-            return chunk;
-          }, [])}
+          savedMovies.length > 0 &&
+          savedMovies
+            .slice(0, chunkSize)
+            .map((movie) => (
+              <MoviesCard
+                key={movie._id}
+                movie={movie}
+                location={location}
+                onSaving={onSaving}
+              />
+            ))}
         {!areAnyResults &&
           location === "/movies" &&
           !isFirstVisit &&
-          moviesToRender.length === 0 && (
+          movies.length === 0 && (
             <p className="movies-list__message">Ничего не найдено</p>
           )}
         {!areAnyResults &&
           location === "/saved-movies" &&
-          savedMoviesToRender.length === 0 && (
+          savedMovies.length === 0 && (
             <p className="movies-list__message">Ничего не найдено</p>
           )}
         {location === "/movies" && didSearchFail && (
@@ -138,16 +103,16 @@ function MoviesCardList({
         )}
       </div>
       {(location === "/movies" &&
-        moviesToRender.length &&
-        moviesToRender.length > currentMoviesChunk.length && (
+        movies.length &&
+        movies.length > chunkSize && (
           <button className="movies-list__btn" onClick={handleMoreBtnClick}>
             Ещё
           </button>
         )) ||
         null}
       {(location === "/saved-movies" &&
-        savedMoviesToRender.length &&
-        savedMoviesToRender.length > currentMoviesChunk.length && (
+        savedMovies.length &&
+        savedMovies.length > chunkSize && (
           <button className="movies-list__btn" onClick={handleMoreBtnClick}>
             Ещё
           </button>

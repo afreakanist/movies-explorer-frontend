@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MoviesCardList from "../MoviesCardList/MoviesCardList";
 import Preloader from "../Preloader/Preloader";
 import SearchForm from "../SearchForm/SearchForm";
@@ -6,6 +6,7 @@ import "./Movies.css";
 
 function Movies({
   movies,
+  setMovies,
   savedMovies,
   onSearchMovie,
   areShortFilmsIncluded,
@@ -19,6 +20,10 @@ function Movies({
   onFilter,
 }) {
   const [isFirstVisit, setIsFirstVisit] = useState(true);
+  useEffect(() => {
+    setMovies([]);
+    setAreAnyResults(true);
+  }, []);
 
   return (
     <main className="content movies">
@@ -26,6 +31,7 @@ function Movies({
         <SearchForm
           onSearchMovie={onSearchMovie}
           onFilter={onFilter}
+          areShortFilmsIncluded={areShortFilmsIncluded}
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           setIsPending={setIsPending}
           setIsFirstVisit={setIsFirstVisit}
@@ -34,6 +40,7 @@ function Movies({
         {isPending && <Preloader />}
         <MoviesCardList
           movies={movies}
+          setMovies={setMovies}
           savedMovies={savedMovies}
           areShortFilmsIncluded={areShortFilmsIncluded}
           onSaving={onSaving}

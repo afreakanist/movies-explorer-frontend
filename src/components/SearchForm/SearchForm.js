@@ -4,6 +4,7 @@ import "./SearchForm.css";
 
 function SearchForm({
   onSearchMovie,
+  areShortFilmsIncluded,
   setAreShortFilmsIncluded,
   setIsPending,
   setIsFirstVisit,
@@ -16,7 +17,7 @@ function SearchForm({
   });
 
   const handleFilter = (e) => {
-    setAreShortFilmsIncluded(e.target.checked);
+    setAreShortFilmsIncluded(!areShortFilmsIncluded);
     onFilter(e.target.checked);
   };
 
@@ -59,7 +60,7 @@ function SearchForm({
               type="checkbox"
               name="short"
               className="search__filter-input"
-              defaultChecked
+              checked={areShortFilmsIncluded}
               onChange={handleFilter}
             />
             <span className="search__filter-slider"></span>

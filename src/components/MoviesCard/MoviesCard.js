@@ -1,6 +1,7 @@
+import { useState } from "react";
 import "./MoviesCard.css";
 
-function MoviesCard({ movie, onSaving, isSaved, location }) {
+function MoviesCard({ movie, onSaving, location }) {
   const modifier =
     location === "/movies" ? "card__btn_saved" : "card__btn_delete";
 
@@ -10,7 +11,16 @@ function MoviesCard({ movie, onSaving, isSaved, location }) {
     return hours > 0 ? `${hours}ч ${minutes}м` : `${minutes}м`;
   };
 
+  const [isSaved, setIsSaved] = useState(
+    location === "/movies"
+      ? JSON.parse(localStorage.getItem("savedMovieList")).some(
+          (m) => m.movieId === String(movie.id)
+        )
+      : true
+  );
+
   const handleSaving = () => {
+    setIsSaved(!isSaved);
     onSaving(movie, isSaved, location);
   };
 
@@ -21,7 +31,7 @@ function MoviesCard({ movie, onSaving, isSaved, location }) {
       <div className="card__poster">
         <a
           href={`${
-            trailerURL.startsWith("http")
+            trailerURL && trailerURL.startsWith("http")
               ? trailerURL
               : "https://www.youtube.com"
           }`}
