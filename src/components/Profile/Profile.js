@@ -65,6 +65,7 @@ function Profile({
                 autoComplete="false"
                 required
                 onChange={handleChange}
+                pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
               ></input>
               {errors.email && (
                 <span className="profile__form-error">{errors.email}</span>

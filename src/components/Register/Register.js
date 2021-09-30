@@ -64,6 +64,7 @@ function Register({
           required
           value={userData.email}
           onChange={handleChange}
+          pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
         ></input>
         {errors.email && (
           <span className="user-form__form-error">{errors.email}</span>
@@ -81,6 +82,7 @@ function Register({
           required
           value={userData.password}
           onChange={handleChange}
+          pattern="^[a-zA-Z0-9-_.!?]+$"
         ></input>
         {errors.password && (
           <span className="user-form__form-error">{errors.password}</span>
