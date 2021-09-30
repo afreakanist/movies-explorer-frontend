@@ -9,35 +9,37 @@ function MoviesCardList({
   areShortFilmsIncluded,
   onSaving,
   didSearchFail,
+  areAnyResults,
+  isFirstVisit,
 }) {
   const location = useLocation().pathname;
-  const movieList = areShortFilmsIncluded
-    ? movies
-    : movies.filter((movie) => {
-        return movie.duration > 40;
-      });
 
-  const savedMovieList = areShortFilmsIncluded
+  const moviesToRender = areShortFilmsIncluded
+    ? movies
+    : movies.filter((movie) => movie.duration > 40);
+
+  const savedMoviesToRender = areShortFilmsIncluded
     ? savedMovies
-    : savedMovies.filter((movie) => {
-        return movie.duration > 40;
-      });
+    : savedMovies.filter((movie) => movie.duration > 40);
 
   const [currentMoviesChunk, setCurrentMovieChunk] = useState([]);
   const [windowSize, setWindowSize] = useState(window.innerWidth);
 
   useEffect(() => {
     if (location === "/movies") {
-      const nextMoviesChunk = movieList.slice(0, defineChunkSize().perPage);
+      const nextMoviesChunk = moviesToRender.slice(
+        0,
+        defineChunkSize().perPage
+      );
       setCurrentMovieChunk(nextMoviesChunk);
     } else {
-      const nextMoviesChunk = savedMovieList.slice(
+      const nextMoviesChunk = savedMoviesToRender.slice(
         0,
         defineChunkSize().perPage
       );
       setCurrentMovieChunk(nextMoviesChunk);
     }
-  }, [windowSize]);
+  }, [windowSize, movies, savedMovies, areShortFilmsIncluded]);
 
   function debounce(fn, ms) {
     let timer;
@@ -83,8 +85,8 @@ function MoviesCardList({
     <div className="movies-list">
       <div className="movies-list__grid">
         {location === "/movies" &&
-          movieList.length > 0 &&
-          movieList.reduce((chunk, movie) => {
+          moviesToRender.length > 0 &&
+          moviesToRender.reduce((chunk, movie) => {
             if (chunk.length < currentMoviesChunk.length) {
               const isSaved = savedMovies.some(
                 (m) => m.movieId === String(movie.id)
@@ -102,8 +104,8 @@ function MoviesCardList({
             return chunk;
           }, [])}
         {location === "/saved-movies" &&
-          savedMovieList.length > 0 &&
-          savedMovieList.reduce((chunk, movie) => {
+          savedMoviesToRender.length > 0 &&
+          savedMoviesToRender.reduce((chunk, movie) => {
             if (chunk.length < currentMoviesChunk.length) {
               chunk.push(
                 <MoviesCard
@@ -117,30 +119,46 @@ function MoviesCardList({
             }
             return chunk;
           }, [])}
-        {(movieList.length === 0 || savedMovieList.length === 0) && (
-          <p className="movies-list__message">Ничего не найдено</p>
-        )}
-        {didSearchFail && (
+        {!areAnyResults &&
+          location === "/movies" &&
+          !isFirstVisit &&
+          moviesToRender.length === 0 && (
+            <p className="movies-list__message">Ничего не найдено</p>
+          )}
+        {!areAnyResults &&
+          location === "/saved-movies" &&
+          savedMoviesToRender.length === 0 && (
+            <p className="movies-list__message">Ничего не найдено</p>
+          )}
+        {location === "/movies" && didSearchFail && (
           <p className="movies-list__message">
             Во время запроса произошла ошибка. Возможно, проблема с соединением
             или сервер недоступен. Подождите немного и попробуйте ещё раз
           </p>
         )}
       </div>
-      {location === "/movies" &&
-        movieList.length &&
-        movieList.length > currentMoviesChunk.length && (
+      {(location === "/movies" &&
+        moviesToRender.length &&
+        moviesToRender.length > currentMoviesChunk.length && (
           <button className="movies-list__btn" onClick={handleMoreBtnClick}>
             Ещё
           </button>
-        )}
-      {location === "/saved-movies" &&
-        savedMovieList.length &&
-        savedMovieList.length > currentMoviesChunk.length && (
+        )) ||
+        null}
+      {(location === "/saved-movies" &&
+        savedMoviesToRender.length &&
+        savedMoviesToRender.length > currentMoviesChunk.length && (
           <button className="movies-list__btn" onClick={handleMoreBtnClick}>
             Ещё
           </button>
-        )}
+        )) ||
+        null}
+      {(location === "/saved-movies" &&
+        JSON.parse(localStorage.getItem("savedMovieList")).length === 0 &&
+        savedMovies.length === 0 && (
+          <p className="movies-list__message">Вы ещё не сохраняли фильмы</p>
+        )) ||
+        null}
     </div>
   );
 }

@@ -1,35 +1,36 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
 import useFormValidation from "../../utils/hooks/useFormValidation";
 import "./SearchForm.css";
 
 function SearchForm({
-  movies,
-  savedMovies,
   onSearchMovie,
   setAreShortFilmsIncluded,
   setIsPending,
+  setIsFirstVisit,
+  setAreAnyResults,
+  onFilter,
 }) {
   const [errorText, setErrorText] = useState("");
-  const location = useLocation().pathname;
   const { values, isValid, handleChange } = useFormValidation({
     movie: "",
   });
 
   const handleFilter = (e) => {
     setAreShortFilmsIncluded(e.target.checked);
+    onFilter(e.target.checked);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (isValid) {
       setIsPending(true);
+      setAreAnyResults(true);
       setErrorText("");
-      const movieList = location === "/movies" ? movies : savedMovies;
-      onSearchMovie(values.movie, movieList, location);
+      onSearchMovie(values.movie);
     } else {
       setErrorText("Нужно ввеcти ключевое слово");
     }
+    setIsFirstVisit(false);
   };
 
   return (

@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { Switch, Route, useHistory } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  useHistory,
+  useLocation,
+  Redirect,
+} from "react-router-dom";
 import "./App.css";
 import Footer from "../Footer/Footer";
 import Header from "../Header/Header";
@@ -21,15 +27,18 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
+  const [movieSeacrhKeyword, setMovieSearchKeyword] = useState("");
+  const [savedMovieSeacrhKeyword, setSavedMovieSearchKeyword] = useState("");
+  const [areAnyResults, setAreAnyResults] = useState(true);
   const [areShortFilmsIncluded, setAreShortFilmsIncluded] = useState(true);
   const [isPending, setIsPending] = useState(false);
   const [didSearchFail, setDidSearchFail] = useState(false);
   const [requestStatusMessage, setRequestStatusMessage] = useState({
     isVisible: false,
     isSuccessful: false,
-    message: "",
   });
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     handleTokenCheck();
@@ -41,10 +50,20 @@ function App() {
       Promise.all([mainApi.getUserInfo(token), mainApi.getMovieCards(token)])
         .then(([userData, moviesData]) => {
           setCurrentUser(userData);
-          setSavedMovies([...moviesData]);
+          const mySavedMovies = moviesData.filter((movie) => {
+            return movie.owner === userData._id;
+          });
+          setSavedMovies(mySavedMovies);
+          localStorage.setItem("savedMovieList", JSON.stringify(mySavedMovies));
         })
         .catch((err) => console.log(err));
     }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    setRequestStatusMessage({
+      isVisible: false,
+    });
   }, [isLoggedIn]);
 
   const handleRegister = ({ password, email, name }) => {
@@ -52,11 +71,7 @@ function App() {
       .register(password, email, name)
       .then(({ _id, email, name }) => {
         if (_id && email) {
-          setRequestStatusMessage({
-            isVisible: true,
-            isSuccessful: true,
-          });
-          history.push("/signin");
+          handleLogin({ password, email });
         } else {
           setRequestStatusMessage({
             isVisible: true,
@@ -97,27 +112,27 @@ function App() {
   const handleTokenCheck = () => {
     if (localStorage.getItem("jwt")) {
       const jwt = localStorage.getItem("jwt");
-      const movieList = localStorage.getItem("movieList");
       auth
         .checkToken(jwt)
         .then((res) => {
           if (res) {
             setIsLoggedIn(true);
+            history.push(location.pathname);
+          } else {
             history.push("/");
           }
         })
         .catch((err) => console.log(err));
-      if (movieList) {
-        setMovies(JSON.parse(movieList));
-      }
     }
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("email");
-    localStorage.removeItem("movieList");
+    localStorage.clear();
+    setMovies([]);
+    setSavedMovies([]);
+    setCurrentUser({});
+    history.push("/");
   };
 
   const handleProfileUpdate = (userData) => {
@@ -140,29 +155,88 @@ function App() {
       });
   };
 
-  const handleMovieSearch = (movieValue, movieList, location) => {
-    setDidSearchFail(false);
-    if (movieList.length > 0) {
-      const results = movieList.filter((movie) =>
-        movie.nameRU.toLowerCase().includes(movieValue.trim().toLowerCase())
-      );
-      location === "/movies" ? setMovies(results) : setSavedMovies(results);
-      setIsPending(false);
-    } else {
-      moviesApi
-        .getMovies()
-        .then((moviesData) => {
-          setMovies([...moviesData]);
-          localStorage.setItem("movieList", JSON.stringify(moviesData));
-        })
-        .catch((err) => {
-          console.log(err);
-          setDidSearchFail(true);
-        })
-        .finally(() => {
-          setIsPending(false);
-        });
+  const filterByDuration = (list, shortIncluded) => {
+    let results = [];
+    if (list) {
+      results = shortIncluded
+        ? list
+        : list.filter((movie) => movie.duration > 40);
     }
+    setAreAnyResults(results.length !== 0);
+    return results;
+  };
+
+  const filterByKeyword = (list, value) => {
+    let results = [];
+    if (list) {
+      results = list.filter((movie) =>
+        movie.nameRU.toLowerCase().includes(value.trim().toLowerCase())
+      );
+    }
+    setAreAnyResults(results.length !== 0);
+    return results;
+  };
+
+  const search = (list, value, shortIncluded) => {
+    return filterByKeyword(filterByDuration(list, shortIncluded), value);
+  };
+
+  const handleFilter = (shortIncluded) => {
+    if (movieSeacrhKeyword && location.pathname === "/movies") {
+      const list = JSON.parse(localStorage.getItem("movieList"));
+      const results = search(list, movieSeacrhKeyword, shortIncluded);
+      setMovies(results);
+    } else if (location.pathname === "/saved-movies") {
+      const list = JSON.parse(localStorage.getItem("savedMovieList"));
+      const results = search(list, savedMovieSeacrhKeyword, shortIncluded);
+      setSavedMovies(results);
+    }
+  };
+
+  const handleMovieSearch = async (movieValue) => {
+    setDidSearchFail(false);
+    setMovieSearchKeyword(movieValue);
+
+    try {
+      const movieList = JSON.parse(localStorage.getItem("movieList"));
+      let results = [];
+      if (!movieList) {
+        const moviesData = await moviesApi.getMovies();
+        localStorage.setItem("movieList", JSON.stringify(moviesData));
+        results = filterByKeyword(
+          filterByDuration(moviesData, areShortFilmsIncluded),
+          movieValue
+        );
+      } else {
+        results = filterByKeyword(
+          filterByDuration(movieList, areShortFilmsIncluded),
+          movieValue
+        );
+      }
+      setMovies(results);
+    } catch (err) {
+      console.log(err);
+      setDidSearchFail(true);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleSavedMovieSearch = (movieValue) => {
+    setSavedMovieSearchKeyword(movieValue);
+    let results = [];
+    const movieList = JSON.parse(localStorage.getItem("savedMovieList"));
+    if (!movieList) {
+      setAreAnyResults(false);
+    } else {
+      results = filterByKeyword(
+        filterByDuration(savedMovies, areShortFilmsIncluded),
+        movieValue
+      );
+      setAreAnyResults(results.length !== 0);
+    }
+    setSavedMovies(results);
+    setIsPending(false);
   };
 
   const handleMovieSaving = (movie, isSaved, location) => {
@@ -191,13 +265,13 @@ function App() {
       : mainApi
           .postMovieCard(
             {
-              country: movie.country,
-              description: movie.description,
-              director: movie.director,
-              duration: movie.duration,
-              nameEN: movie.nameEN,
-              nameRU: movie.nameRU,
-              year: movie.year,
+              country: movie.country ?? "Страна не указана",
+              description: movie.description ?? "Описание не предоставлено",
+              director: movie.director ?? "Режиссёр не указан",
+              duration: movie.duration ?? 0,
+              nameEN: movie.nameEN ?? "No name provided",
+              nameRU: movie.nameRU ?? "Имя не указано",
+              year: movie.year ?? "Год не указан",
               image: `https://api.nomoreparties.co${movie.image.url}`,
               trailer: movie.trailerLink.startsWith("http")
                 ? movie.trailerLink
@@ -222,16 +296,26 @@ function App() {
           <Footer />
         </Route>
         <Route exact path="/signup">
-          <Register
-            onRegister={handleRegister}
-            requestStatusMessage={requestStatusMessage}
-          />
+          {!isLoggedIn ? (
+            <Register
+              onRegister={handleRegister}
+              requestStatusMessage={requestStatusMessage}
+              setRequestStatusMessage={setRequestStatusMessage}
+            />
+          ) : (
+            <Redirect to="/movies" />
+          )}
         </Route>
         <Route exact path="/signin">
-          <Login
-            onLogin={handleLogin}
-            requestStatusMessage={requestStatusMessage}
-          />
+          {!isLoggedIn ? (
+            <Login
+              onLogin={handleLogin}
+              requestStatusMessage={requestStatusMessage}
+              setRequestStatusMessage={setRequestStatusMessage}
+            />
+          ) : (
+            <Redirect to="/movies" />
+          )}
         </Route>
         <ProtectedRoute
           exact
@@ -241,6 +325,7 @@ function App() {
           onProfileUpdate={handleProfileUpdate}
           onLogout={handleLogout}
           requestStatusMessage={requestStatusMessage}
+          setRequestStatusMessage={setRequestStatusMessage}
           user={currentUser}
         />
         <ProtectedRoute
@@ -252,11 +337,14 @@ function App() {
           savedMovies={savedMovies}
           onSearchMovie={handleMovieSearch}
           onSaving={handleMovieSaving}
+          onFilter={handleFilter}
           areShortFilmsIncluded={areShortFilmsIncluded}
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           isPending={isPending}
           setIsPending={setIsPending}
           didSearchFail={didSearchFail}
+          areAnyResults={areAnyResults}
+          setAreAnyResults={setAreAnyResults}
         />
         <ProtectedRoute
           exact
@@ -265,13 +353,16 @@ function App() {
           isLoggedIn={isLoggedIn}
           movies={movies}
           savedMovies={savedMovies}
-          onSearchMovie={handleMovieSearch}
+          onSearchMovie={handleSavedMovieSearch}
           onSaving={handleMovieSaving}
+          onFilter={handleFilter}
           areShortFilmsIncluded={areShortFilmsIncluded}
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           isPending={isPending}
           setIsPending={setIsPending}
           didSearchFail={didSearchFail}
+          areAnyResults={areAnyResults}
+          setAreAnyResults={setAreAnyResults}
         />
         <Route path="*">
           <NotFound />

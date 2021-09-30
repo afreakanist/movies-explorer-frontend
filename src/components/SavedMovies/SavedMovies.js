@@ -1,3 +1,4 @@
+import { useState } from "react";
 import MoviesCardList from "../MoviesCardList/MoviesCardList";
 import Preloader from "../Preloader/Preloader";
 import SearchForm from "../SearchForm/SearchForm";
@@ -13,16 +14,21 @@ function SavedMovies({
   setIsPending,
   onSaving,
   didSearhFail,
+  areAnyResults,
+  setAreAnyResults,
+  onFilter,
 }) {
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
   return (
     <main className="content movies">
       <div className="movies__wrapper">
         <SearchForm
-          movies={movies}
-          savedMovies={savedMovies}
           onSearchMovie={onSearchMovie}
+          onFilter={onFilter}
           setAreShortFilmsIncluded={setAreShortFilmsIncluded}
           setIsPending={setIsPending}
+          setIsFirstVisit={setIsFirstVisit}
+          setAreAnyResults={setAreAnyResults}
         />
         {isPending && <Preloader />}
         <MoviesCardList
@@ -31,6 +37,9 @@ function SavedMovies({
           areShortFilmsIncluded={areShortFilmsIncluded}
           onSaving={onSaving}
           didSearchFail={didSearhFail}
+          areAnyResults={areAnyResults}
+          setAreAnyResults={setAreAnyResults}
+          isFirstVisit={isFirstVisit}
         />
       </div>
     </main>

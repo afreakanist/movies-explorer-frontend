@@ -1,7 +1,14 @@
+import { useEffect } from "react";
 import useFormValidation from "../../utils/hooks/useFormValidation";
 import "./Profile.css";
 
-function Profile({ onProfileUpdate, requestStatusMessage, onLogout, user }) {
+function Profile({
+  onProfileUpdate,
+  requestStatusMessage,
+  setRequestStatusMessage,
+  onLogout,
+  user,
+}) {
   const { values: userData, errors, handleChange, isValid } = useFormValidation(
     {
       name: user.name,
@@ -9,10 +16,19 @@ function Profile({ onProfileUpdate, requestStatusMessage, onLogout, user }) {
     }
   );
 
+  const isSameUserData =
+    user.name === userData.name && user.email === userData.email;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onProfileUpdate(userData);
   };
+
+  useEffect(() => {
+    setRequestStatusMessage({
+      isVisible: false,
+    });
+  }, [userData]);
 
   return (
     <main className="content profile">
@@ -62,7 +78,10 @@ function Profile({ onProfileUpdate, requestStatusMessage, onLogout, user }) {
               </span>
             )}
           </div>
-          <button className="profile__form-btn" disabled={!isValid}>
+          <button
+            className="profile__form-btn"
+            disabled={!isValid || isSameUserData}
+          >
             Редактировать
           </button>
         </form>

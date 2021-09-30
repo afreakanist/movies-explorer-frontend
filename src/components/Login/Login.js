@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import useFormValidation from "../../utils/hooks/useFormValidation";
 import UserForm from "../UserForm/UserForm";
 
-function Login({ onLogin, requestStatusMessage }) {
+function Login({ onLogin, requestStatusMessage, setRequestStatusMessage }) {
   const { values: userData, errors, handleChange, isValid } = useFormValidation(
     {
       email: "",
@@ -13,6 +14,12 @@ function Login({ onLogin, requestStatusMessage }) {
     e.preventDefault();
     onLogin(userData);
   };
+
+  useEffect(() => {
+    setRequestStatusMessage({
+      isVisible: false,
+    });
+  }, []);
 
   return (
     <UserForm

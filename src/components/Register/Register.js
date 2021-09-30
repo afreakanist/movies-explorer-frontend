@@ -1,7 +1,12 @@
+import { useEffect } from "react";
 import useFormValidation from "../../utils/hooks/useFormValidation";
 import UserForm from "../UserForm/UserForm";
 
-function Register({ onRegister, requestStatusMessage }) {
+function Register({
+  onRegister,
+  requestStatusMessage,
+  setRequestStatusMessage,
+}) {
   const { values: userData, errors, handleChange, isValid } = useFormValidation(
     {
       name: "",
@@ -14,6 +19,12 @@ function Register({ onRegister, requestStatusMessage }) {
     e.preventDefault();
     onRegister(userData);
   };
+
+  useEffect(() => {
+    setRequestStatusMessage({
+      isVisible: false,
+    });
+  }, []);
 
   return (
     <UserForm
