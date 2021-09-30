@@ -172,6 +172,7 @@ function App() {
       results = list.filter((movie) =>
         movie.nameRU.toLowerCase().includes(value.trim().toLowerCase())
       );
+      console.log("filter by word", results);
     }
     setAreAnyResults(results.length !== 0);
     return results;
@@ -229,12 +230,10 @@ function App() {
     if (!movieList) {
       setAreAnyResults(false);
     } else {
-      results = filterByKeyword(
-        filterByDuration(savedMovies, areShortFilmsIncluded),
-        movieValue
-      );
+      results = search(movieList, movieValue, areShortFilmsIncluded);
       setAreAnyResults(results.length !== 0);
     }
+
     setSavedMovies(results);
     setIsPending(false);
   };
@@ -260,6 +259,14 @@ function App() {
             setSavedMovies((prev) =>
               prev.filter((m) => m._id !== movieToDelete._id)
             );
+            localStorage.setItem(
+              "savedMovieList",
+              JSON.stringify(
+                JSON.parse(localStorage.getItem("savedMovieList")).filter(
+                  (movie) => movie._id !== movieToDelete._id
+                )
+              )
+            );
           })
           .catch((err) => console.log(err))
       : mainApi
@@ -283,6 +290,13 @@ function App() {
           )
           .then((savedMovie) => {
             setSavedMovies((prev) => [...prev, savedMovie]);
+            localStorage.setItem(
+              "savedMovieList",
+              JSON.stringify([
+                ...JSON.parse(localStorage.getItem("savedMovieList")),
+                savedMovie,
+              ])
+            );
           })
           .catch((err) => console.log(err));
   };
