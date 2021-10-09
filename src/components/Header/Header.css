@@ -71,6 +71,14 @@
   font-weight: 500;
 }
 
+.header_dark .header__link {
+  color: white;
+}
+
+.header__dropdown .header__link {
+  color: black;
+}
+
 @media (max-width: 768px) {
   .header__link_active {
     border-bottom: 2px solid black;

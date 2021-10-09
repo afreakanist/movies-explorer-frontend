@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import "./Portfolio.css";
 import linkIcon from "../../images/link-icon.svg";
 

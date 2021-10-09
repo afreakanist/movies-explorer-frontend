@@ -27,6 +27,7 @@
 
 .card__image {
   width: 100%;
+  height: 100%;
 }
 
 .card__btn {
@@ -101,7 +102,7 @@
   line-height: 16px;
   letter-spacing: 0px;
   text-align: left;
-  margin: 0;
+  margin: 0 1ch 0 0;
 }
 
 @media (max-width: 520px) {

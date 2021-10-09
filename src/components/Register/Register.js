@@ -1,6 +1,31 @@
+import { useEffect } from "react";
+import useFormValidation from "../../utils/hooks/useFormValidation";
 import UserForm from "../UserForm/UserForm";
 
-function Register() {
+function Register({
+  onRegister,
+  requestStatusMessage,
+  setRequestStatusMessage,
+}) {
+  const { values: userData, errors, handleChange, isValid } = useFormValidation(
+    {
+      name: "",
+      email: "",
+      password: "",
+    }
+  );
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onRegister(userData);
+  };
+
+  useEffect(() => {
+    setRequestStatusMessage({
+      isVisible: false,
+    });
+  }, [userData]);
+
   return (
     <UserForm
       title="Добро пожаловать!"
@@ -8,6 +33,8 @@ function Register() {
       optionText="Уже зарегистрированы?"
       optionLink="/signin"
       optionLinkText="Войти"
+      onSubmit={handleSubmit}
+      isValid={isValid}
     >
       <label htmlFor="name" className="user-form__form-label">
         Имя
@@ -16,10 +43,15 @@ function Register() {
           name="name"
           minLength="2"
           maxLength="30"
+          autoComplete="false"
           className="user-form__form-input"
           required
+          value={userData.name}
+          onChange={handleChange}
         ></input>
-        <span className="user-form__form-error"></span>
+        {errors.name && (
+          <span className="user-form__form-error">{errors.name}</span>
+        )}
       </label>
       <label htmlFor="email" className="user-form__form-label">
         E-mail
@@ -27,10 +59,16 @@ function Register() {
           id="email"
           name="email"
           type="email"
+          autoComplete="false"
           className="user-form__form-input"
           required
+          value={userData.email}
+          onChange={handleChange}
+          pattern="^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$"
         ></input>
-        <span className="user-form__form-error"></span>
+        {errors.email && (
+          <span className="user-form__form-error">{errors.email}</span>
+        )}
       </label>
       <label htmlFor="password" className="user-form__form-label">
         Пароль
@@ -39,11 +77,24 @@ function Register() {
           name="password"
           type="password"
           minLength="8"
+          autoComplete="false"
           className="user-form__form-input"
           required
+          value={userData.password}
+          onChange={handleChange}
+          pattern="^[a-zA-Z0-9-_.!?]+$"
         ></input>
-        <span className="user-form__form-error"></span>
+        {errors.password && (
+          <span className="user-form__form-error">{errors.password}</span>
+        )}
       </label>
+      {requestStatusMessage.isVisible && (
+        <span className="user-form__message">
+          {requestStatusMessage.isSuccessful
+            ? "Вы успешно зарегистрировались"
+            : "Что-то пошло не так :("}
+        </span>
+      )}
     </UserForm>
   );
 }

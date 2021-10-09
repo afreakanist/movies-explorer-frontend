@@ -9,6 +9,8 @@ function UserForm({
   optionText,
   optionLink,
   optionLinkText,
+  onSubmit,
+  isValid,
 }) {
   return (
     <main className="user-form">
@@ -17,9 +19,11 @@ function UserForm({
           <img src={logo} alt="Логотип" className="logo" />
         </Link>
         <h1 className="user-form__title">{title}</h1>
-        <form className="user-form__form">
+        <form className="user-form__form" onSubmit={onSubmit} noValidate>
           <div className="user-form__form-inputs">{children}</div>
-          <button className="user-form__form-btn">{btnText}</button>
+          <button className="user-form__form-btn" disabled={!isValid}>
+            {btnText}
+          </button>
         </form>
         <p className="user-form__option">
           {optionText}{" "}
